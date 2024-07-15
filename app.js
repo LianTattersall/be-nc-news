@@ -1,8 +1,11 @@
 const express = require('express')
 const { endpointNotFound, internalServerError } = require('./error-handling-functions')
 const { getTopics } = require('./controllers/topics-controllers')
+const { getEndpoints } = require('./controllers/endpoints-controllers')
 
 const app = express()
+
+app.get('/api' , getEndpoints)
 
 app.get('/api/topics' , getTopics)
 
