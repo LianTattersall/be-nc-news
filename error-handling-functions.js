@@ -5,3 +5,16 @@ exports.endpointNotFound = (request , response) => {
 exports.internalServerError = ((err , request , response , next) => {
     response.status(500).send({msg: 'Internal Server Error'})
 })
+
+exports.psqlError = ((err , request , response , next) => {
+    if (err.code === '22P02') {
+        response.status(400).send({msg: '400 - Bad Request'})
+    }
+    next(err)
+})
+
+exports.customError = (err , request , response , next) => {
+    if (err.status && err.msg) {
+        response.status(err.status).send({msg: err.msg})
+    }
+}
