@@ -1,6 +1,7 @@
 const app = require('../app.js')
 
 const request = require('supertest')
+require('jest-sorted')
 
 const data = require('../db/data/test-data/index.js')
 const seed = require('../db/seeds/seed.js')
@@ -61,33 +62,41 @@ describe('/api' , () => {
 describe('/api/articles/:article_id' , () => {
     describe('GET' , () => {
         test('GET: 200 - returns with the specified article information from the specified id' , () => {
+            const expected = {
+                article_id: 1,
+                title: "Living in the shadow of a great man",
+                topic: "mitch",
+                author: "butter_bridge",
+                body: "I find this existence challenging",
+                created_at: "2020-07-09T20:11:00.000Z",
+                votes: 100,
+                article_img_url:
+                  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              }
             return request(app)
             .get('/api/articles/1')
             .expect(200)
             .then(({body: {article}}) => {
-                expect(article.author).toBe("butter_bridge")
-                expect(article.title).toBe("Living in the shadow of a great man")
-                expect(article.article_id).toBe(1)
-                expect(article.body).toBe("I find this existence challenging")
-                expect(article.topic).toBe("mitch")
-                expect(article.created_at).toBe("2020-07-09T20:11:00.000Z")
-                expect(article.votes).toBe(100)
-                expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700")
+                expect(article).toEqual(expected)
             })
         })
         test('GET: 200 - returns with the specified article information from the specified id' , () => {
+            const expected = {
+                article_id: 5,
+                title: "UNCOVERED: catspiracy to bring down democracy",
+                topic: "cats",
+                author: "rogersop",
+                body: "Bastet walks amongst us, and the cats are taking arms!",
+                created_at: "2020-08-03T13:14:00.000Z",
+                votes: 0,
+                article_img_url:
+                  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              }
             return request(app)
             .get('/api/articles/5')
             .expect(200)
             .then(({body: {article}}) => {
-                expect(article.author).toBe("rogersop")
-                expect(article.title).toBe("UNCOVERED: catspiracy to bring down democracy")
-                expect(article.article_id).toBe(5)
-                expect(article.body).toBe("Bastet walks amongst us, and the cats are taking arms!")
-                expect(article.topic).toBe("cats")
-                expect(article.created_at).toBe("2020-08-03T13:14:00.000Z")
-                expect(article.votes).toBe(0)
-                expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700")
+                expect(article).toEqual(expected)
             })
         })
         test('GET: 400 - returns an error when the article_id is not a number' , () => {
@@ -104,6 +113,38 @@ describe('/api/articles/:article_id' , () => {
             .expect(404)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('404 - Article not found')
+            })
+        })
+    })
+})
+
+describe('/api/articles' , () => {
+    describe('GET' , () => {
+        test('GET: 200 - returns with an array of articles objects without the body property' , () => {
+            return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                articles.forEach((article) => {
+                    expect(article).toEqual({
+                        author: expect.any(String),
+                        title: expect.any(String),
+                        article_id: expect.any(Number),
+                        topic: expect.any(String),
+                        created_at: expect.any(String),
+                        votes: expect.any(Number),
+                        article_img_url: expect.any(String),
+                        comments_count: expect.any(Number)
+                    })
+                })
+            })
+        })
+        test('GET: 200 - the return array contains article objects sorted into date order (descending)' , () => {
+            return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles).toBeSortedBy('created_at' , {descending: true})
             })
         })
     })
