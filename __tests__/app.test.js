@@ -7,6 +7,8 @@ const seed = require('../db/seeds/seed.js')
 
 const db = require('../db/connection.js')
 
+const endpointsObj = require('../endpoints.json')
+
 beforeEach(() => {
     return seed(data)
 })
@@ -38,6 +40,20 @@ describe('/api/topics' , () => {
                     expect(typeof topic.slug).toBe('string')
                     expect(typeof topic.description).toBe('string')
                 })
+            })
+        })
+    })
+})
+
+describe('/api' , () => {
+    describe('GET' , () => {
+        test('GET: 200 - returns with an object containing information on all the endpoints' , () => {
+            return request(app)
+            .get('/api')
+            .expect(200)
+            .then(({body: {endpoints}}) => {
+                console.log(endpoints)
+                expect(endpoints).toEqual(endpointsObj)
             })
         })
     })
