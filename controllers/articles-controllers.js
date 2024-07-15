@@ -20,4 +20,7 @@ exports.getArticles = (request , response , next) => {
     .then((articles) => {
         response.status(200).send({articles})
     })
+    .catch((err) => {
+        next(err)
+    })
 }
