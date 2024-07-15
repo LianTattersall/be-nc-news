@@ -125,6 +125,7 @@ describe('/api/articles' , () => {
             .get('/api/articles')
             .expect(200)
             .then(({body: {articles}}) => {
+                expect(articles.length).toBe(13)
                 articles.forEach((article) => {
                     expect(article).toEqual({
                         author: expect.any(String),
@@ -145,6 +146,53 @@ describe('/api/articles' , () => {
             .expect(200)
             .then(({body: {articles}}) => {
                 expect(articles).toBeSortedBy('created_at' , {descending: true})
+            })
+        })
+    })
+})
+
+describe('/api/articles/:article_id/comments' , () => {
+    describe('GET' , () => {
+        test('GET: 200 - returns with an array of comment objects relating to the specified article_id' , () => {
+            return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({body: {comments}}) => {
+                expect(comments.length).toBe(11)
+                comments.forEach((comment) => {
+                    expect(comment).toEqual({
+                        comment_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        created_at: expect.any(String),
+                        author: expect.any(String),
+                        body: expect.any(String),
+                        article_id: 1
+                    })
+                })
+            })
+        })
+        test('GET: 200 - the returned array sorts the comments by date (descending' , () => {
+            return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({body: {comments}}) => {
+                expect(comments).toBeSortedBy('created_at' , {descending: true})
+            })
+        })
+        test('GET: 400 - Bad request returns an error when the article id is not a number' , () => {
+            return request(app)
+            .get('/api/articles/23hello/comments')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request')
+            })
+        })
+        test('GET: 404 - not found when there are no corresponding comments' , () => {
+            return request(app)
+            .get('/api/articles/2340/comments')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('404 - No comments found')
             })
         })
     })
