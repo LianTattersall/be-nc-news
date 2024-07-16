@@ -366,3 +366,32 @@ describe('/api/articles/:article_id/comments' , () => {
         })
     })
 })
+
+describe('/api/comments/:comment_id' , () => {
+    describe('DELETE' , () => {
+        test('DELETE: 204 - responds with no body when the delete is successful' , () => {
+            return request(app)
+            .delete('/api/comments/2')
+            .expect(204)
+            .then(({body}) => {
+                expect(body).toEqual({})
+            })
+        })
+        test('DELETE: 400 - Bad request returns an error when the comment id is not a number' , () => {
+            return request(app)
+            .delete('/api/comments/numbertwo')
+            .expect(400)
+            .expect(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Invalid Data Type')
+            })
+        })
+        test('DELETE: 404 Not found returns an error when the comment id does not exist' , () => {
+            return request(app)
+            .delete('/api/comments/9000')
+            .expect(404)
+            .expect(({body: {msg}}) => {
+                expect(msg).toBe('404 - Comment not found')
+            })
+        })
+    })
+})
