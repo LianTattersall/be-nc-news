@@ -1,4 +1,4 @@
-const { fetchCommentsByArticleId, addComment } = require("../models/comments-models")
+const { fetchCommentsByArticleId, addComment, removeComment } = require("../models/comments-models")
 
 exports.getCommentsByArticleId = (request , response , next) => {
     const {article_id} = request.params
@@ -20,6 +20,17 @@ exports.postComment = (request , response , next) => {
             return Promise.reject({status: 400, msg: '400 - Bad Request Incorrect Format'})
         }
         response.status(201).send({comment: rows[0]})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+exports.deleteComment = (request , response , next) => {
+    const {comment_id} = request.params
+    removeComment(comment_id)
+    .then(() => {
+        response.status(204).send()
     })
     .catch((err) => {
         next(err)
