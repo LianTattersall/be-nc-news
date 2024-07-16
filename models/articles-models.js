@@ -4,13 +4,26 @@ exports.fetchArticleById = (article_id) => {
     return db.query(`SELECT * FROM articles WHERE article_id = $1` , [article_id])
 }
 
-exports.fetchArticles = () => {
-    return db.query(`
-    SELECT articles.article_id , articles.title , articles.author , articles.topic , articles.votes , articles.article_img_url , articles.created_at , CAST(COUNT(comment_id) AS INT) AS comments_count FROM articles 
+exports.fetchArticles = (sort_by = 'created_at' , order_by = 'desc') => {
+    let queryStr = `
+    SELECT articles.article_id , articles.title , articles.author , articles.topic , articles.votes , articles.article_img_url , articles.created_at , 
+    CAST(COUNT(comment_id) AS INT) AS comments_count FROM articles 
     LEFT JOIN comments 
     ON comments.article_id = articles.article_id
-    GROUP BY articles.article_id , articles.title , articles.author , articles.topic , articles.votes , articles.article_img_url , articles.created_at
-    ORDER BY created_at DESC`)
+    GROUP BY articles.article_id , articles.title , articles.author , articles.topic , articles.votes , articles.article_img_url , articles.created_at`
+
+    const validColumns = ['article_id' , 'title' , 'topic' , 'author' , 'created_at' , 'votes' , 'article_img_url' , 'comments_count']
+    if (!validColumns.includes(sort_by)) {
+        return Promise.reject({status: 400 , msg: '400 - Bad Request Invalid Column Name'})
+    }
+
+    const validOrderBy = ['asc' , 'desc']
+    if (!validOrderBy.includes(order_by)) {
+        return Promise.reject({status: 400 , msg: '400 - Bad Request Invalid order_by Query'})
+    }
+    queryStr += ` ORDER BY ${sort_by} ${order_by}`
+
+    return db.query(queryStr)
 }
 
 exports.updateArticle = (article_id , inc_votes) => {
