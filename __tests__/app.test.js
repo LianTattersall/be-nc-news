@@ -189,14 +189,25 @@ describe('/api/articles/:article_id' , () => {
                 expect(msg).toEqual('400 - Bad Request Incorrect Format')
             })
         })
-        test('PATCH: 400 - Bad request returns an error when the patch request body contains too many properties', () => {
+        test('PATCH: 200 - responds with the updates article when there are additional keys', () => {
             const patchInfo = {worng_key: 10 , inc_votes: 7}
+            const expected = {
+                article_id: 1,
+                title: "Living in the shadow of a great man",
+                topic: "mitch",
+                author: "butter_bridge",
+                body: "I find this existence challenging",
+                created_at: "2020-07-09T20:11:00.000Z",
+                votes: 107,
+                article_img_url:
+                  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              }
             return request(app)
             .patch('/api/articles/1')
             .send(patchInfo)
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toEqual('400 - Bad Request Incorrect Format')
+            .expect(200)
+            .then(({body: {article}}) => {
+                expect(article).toEqual(expected)
             })
         })
     })
@@ -230,6 +241,60 @@ describe('/api/articles' , () => {
             .expect(200)
             .then(({body: {articles}}) => {
                 expect(articles).toBeSortedBy('created_at' , {descending: true})
+            })
+        })
+    })
+    describe('GET - queries' , () => {
+        test('?sort_by=article_id - responds with the articles sorted by descending article_id' , () => {
+            return request(app)
+            .get('/api/articles?sort_by=article_id')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(13)
+                expect(articles).toBeSortedBy('article_id' , {descending: true})
+            })
+        })
+        test('?sort_by=title - responds with the articles sorted by descending title' , () => {
+            return request(app)
+            .get('/api/articles?sort_by=title')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(13)
+                expect(articles).toBeSortedBy('title' , {descending: true})
+            })
+        })
+        test('?sort_by=invalid-column - responds with an error (400) when the sort_by query is not a valid column' , () => {
+            return request(app)
+            .get('/api/articles?sort_by=not-a-column')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Invalid Column Name')
+            })
+        })
+        test('?order_by=asc - responds with the articles sorted by ascending created_at' , () => {
+            return request(app)
+            .get('/api/articles?order_by=asc')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(13)
+                expect(articles).toBeSortedBy('created_at' , {descending: false})
+            })
+        })
+        test('?order_by=asc&sort_by=votes - the queries can be added together' , () => {
+            return request(app)
+            .get('/api/articles?sort_by=comments_count&order_by=asc')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(13)
+                expect(articles).toBeSortedBy('comments_count' , {descending: false})
+            })
+        })
+        test('?order_by=invalid_input - responds with an error if the order is not either asc or desc' , () => {
+            return request(app)
+            .get('/api/articles?order_by=wavy')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Invalid order_by Query')
             })
         })
     })
@@ -354,14 +419,22 @@ describe('/api/articles/:article_id/comments' , () => {
                 expect(msg).toBe('400 - Bad Request Invalid Data Type')
             })
         })
-        test('POST: 400 - Bad request returns an error when the request body has too many fields' , () => {
+        test('POST: 200 - responds with the posted object when there are additional fields' , () => {
             const postInfo = {wrongKey: 2 , username: 'butter_bridge' , body: 'omg'}
+            const expected = {
+                comment_id: 19,
+                votes: 0,
+                created_at: expect.any(String),
+                author: 'butter_bridge',
+                body: 'omg',
+                article_id: 3
+            }
             return request(app)
             .post('/api/articles/3/comments')
             .send(postInfo)
-            .expect(400)
-            .then(({body: {msg}}) => {
-                expect(msg).toBe('400 - Bad Request Incorrect Format')
+            .expect(201)
+            .then(({body: {comment}}) => {
+                expect(comment).toEqual(expected)
             })
         })
     })
@@ -415,3 +488,4 @@ describe('/api/users' , () => {
         })
     })
 })
+
