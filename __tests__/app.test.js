@@ -116,6 +116,90 @@ describe('/api/articles/:article_id' , () => {
             })
         })
     })
+    describe('PATCH' , () => {
+        test('PATCH: 200 - returns the updated article object' , () => {
+            const patchInfo = {inc_votes: 5}
+            const expected = {
+                article_id: 1,
+                title: "Living in the shadow of a great man",
+                topic: "mitch",
+                author: "butter_bridge",
+                body: "I find this existence challenging",
+                created_at: "2020-07-09T20:11:00.000Z",
+                votes: 105,
+                article_img_url:
+                  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              }
+            return request(app)
+            .patch('/api/articles/1')
+            .send(patchInfo)
+            .expect(200)
+            .then(({body: {article}}) => {
+                expect(article).toEqual(expected)
+            })
+        })
+        test('PATCH: 200 - returns the updated article when inc_votes is negative' , () => {
+            const patchInfo = {inc_votes: -5}
+            const expected = {
+                article_id: 1,
+                title: "Living in the shadow of a great man",
+                topic: "mitch",
+                author: "butter_bridge",
+                body: "I find this existence challenging",
+                created_at: "2020-07-09T20:11:00.000Z",
+                votes: 95,
+                article_img_url:
+                  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              }
+            return request(app)
+            .patch('/api/articles/1')
+            .send(patchInfo)
+            .expect(200)
+            .then(({body: {article}}) => {
+                expect(article).toEqual(expected)
+            })
+        })
+        test('PATCH: 400 - Bad request returns an error when inc_votes is not a number' , () => {
+            const patchInfo = {inc_votes: 'string'}
+            return request(app)
+            .patch('/api/articles/1')
+            .send(patchInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toEqual('400 - Bad Request Invalid Data Type')
+            })
+        })
+        test('PATCH: 404 - Not found returns an error when ther article id does not exist' , () => {
+            const patchInfo = {inc_votes: 19}
+            return request(app)
+            .patch('/api/articles/100')
+            .send(patchInfo)
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toEqual('404 - Article not found')
+            })
+        })
+        test('PATCH: 400 - Bad request returns an error when the patch request body does not contain the correct key', () => {
+            const patchInfo = {worng_key: 10}
+            return request(app)
+            .patch('/api/articles/1')
+            .send(patchInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toEqual('400 - Bad Request Incorrect Format')
+            })
+        })
+        test('PATCH: 400 - Bad request returns an error when the patch request body contains too many properties', () => {
+            const patchInfo = {worng_key: 10 , inc_votes: 7}
+            return request(app)
+            .patch('/api/articles/1')
+            .send(patchInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toEqual('400 - Bad Request Incorrect Format')
+            })
+        })
+    })
 })
 
 describe('/api/articles' , () => {
@@ -230,24 +314,24 @@ describe('/api/articles/:article_id/comments' , () => {
                 })
             })
         })
-        test('POST: 400 - Bad request returns an error when the username is not valid i.e not in the users table' , () => {
+        test('POST: 404 - Not found returns an error when the username is not valid i.e not in the users table' , () => {
             const postInfo = {username: 'invalidUsername468' , body: 'hi'}
             return request(app)
             .post('/api/articles/2/comments')
             .send(postInfo)
-            .expect(400)
+            .expect(404)
             .then(({body: {msg}}) => {
-                expect(msg).toBe('400 - Bad Request')
+                expect(msg).toBe('404 - Not Found')
             })
         })
-        test('POST: 400 - Bad request returns an error when a user tries to comment on an article that does not exist' , () => {
+        test('POST: 404 - Not found returns an error when a user tries to comment on an article that does not exist' , () => {
             const postInfo = {username: 'butter_bridge' , body: 'omg'}
             return request(app)
             .post('/api/articles/725/comments')
             .send(postInfo)
-            .expect(400)
+            .expect(404)
             .then(({body: {msg}}) => {
-                expect(msg).toBe('400 - Bad Request')
+                expect(msg).toBe('404 - Not Found')
             })
         })
         test('POST: 400 - Bad request returns an error when the request body does not have the correct format' , () => {
@@ -268,6 +352,16 @@ describe('/api/articles/:article_id/comments' , () => {
             .expect(400)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('400 - Bad Request Invalid Data Type')
+            })
+        })
+        test('POST: 400 - Bad request returns an error when the request body has too many fields' , () => {
+            const postInfo = {wrongKey: 2 , username: 'butter_bridge' , body: 'omg'}
+            return request(app)
+            .post('/api/articles/3/comments')
+            .send(postInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Incorrect Format')
             })
         })
     })
