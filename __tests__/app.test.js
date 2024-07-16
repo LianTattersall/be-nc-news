@@ -104,7 +104,7 @@ describe('/api/articles/:article_id' , () => {
             .get('/api/articles/not-a-number23')
             .expect(400)
             .then(({body: {msg}}) => {
-                expect(msg).toBe('400 - Bad Request')
+                expect(msg).toBe('400 - Bad Request Invalid Data Type')
             })
         })
         test('GET: 404 - returns an error when the article with specified id does not exist' , () => {
@@ -184,15 +184,90 @@ describe('/api/articles/:article_id/comments' , () => {
             .get('/api/articles/23hello/comments')
             .expect(400)
             .then(({body: {msg}}) => {
-                expect(msg).toBe('400 - Bad Request')
+                expect(msg).toBe('400 - Bad Request Invalid Data Type')
             })
         })
-        test('GET: 404 - not found when there are no corresponding comments' , () => {
+        test('GET: 404 - not found when the article does not exist' , () => {
             return request(app)
             .get('/api/articles/2340/comments')
             .expect(404)
             .then(({body: {msg}}) => {
-                expect(msg).toBe('404 - No comments found')
+                expect(msg).toBe('404 - No such article')
+            })
+        })
+        test('GET: 200 - returns an empty array when the article exists but has no comments' , () => {
+            return request(app)
+            .get('/api/articles/2/comments')
+            .expect(200)
+            .then(({body: {comments}}) => {
+                expect(comments).toEqual([])
+            })
+        })
+        test('GET: 200 - returns an empty array when the article exists but has no comments' , () => {
+            return request(app)
+            .get('/api/articles/7/comments')
+            .expect(200)
+            .then(({body: {comments}}) => {
+                expect(comments).toEqual([])
+            })
+        })
+    })
+    describe('POST' , () => {
+        test('POST: 201 - returns the comment object the has just been posted' , () => {
+            const postInfo = {username: 'butter_bridge' , body: 'Me too!'}
+            return request(app)
+            .post('/api/articles/1/comments')
+            .send(postInfo)
+            .expect(201)
+            .then(({body: {comment}}) => {
+                expect(comment).toEqual({
+                    comment_id: 19,
+                    votes: 0,
+                    created_at: expect.any(String),
+                    author: 'butter_bridge',
+                    body: 'Me too!',
+                    article_id: 1
+                })
+            })
+        })
+        test('POST: 400 - Bad request returns an error when the username is not valid i.e not in the users table' , () => {
+            const postInfo = {username: 'invalidUsername468' , body: 'hi'}
+            return request(app)
+            .post('/api/articles/2/comments')
+            .send(postInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request')
+            })
+        })
+        test('POST: 400 - Bad request returns an error when a user tries to comment on an article that does not exist' , () => {
+            const postInfo = {username: 'butter_bridge' , body: 'omg'}
+            return request(app)
+            .post('/api/articles/725/comments')
+            .send(postInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request')
+            })
+        })
+        test('POST: 400 - Bad request returns an error when the request body does not have the correct format' , () => {
+            const postInfo = {wrongKey: 2}
+            return request(app)
+            .post('/api/articles/3/comments')
+            .send(postInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Incorrect Format')
+            })
+        })
+        test('POST: 400 - Bad request returns an error when a user tries to comment on an article id that is not a number' , () => {
+            const postInfo = {username: 'butter_bridge' , body: 'omg'}
+            return request(app)
+            .post('/api/articles/hello/comments')
+            .send(postInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Invalid Data Type')
             })
         })
     })
