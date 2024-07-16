@@ -3,7 +3,7 @@ const { endpointNotFound, internalServerError, psqlError, customError } = requir
 const { getTopics } = require('./controllers/topics-controllers')
 const { getEndpoints } = require('./controllers/endpoints-controllers')
 const { getArticleById, getArticles, patchArticle } = require('./controllers/articles-controllers')
-const { getCommentsByArticleId, postComment } = require('./controllers/comments-controllers')
+const { getCommentsByArticleId, postComment, deleteComment } = require('./controllers/comments-controllers')
 
 const app = express()
 
@@ -22,6 +22,8 @@ app.get('/api/articles/:article_id/comments' , getCommentsByArticleId)
 app.post('/api/articles/:article_id/comments' , postComment)
 
 app.patch('/api/articles/:article_id' , patchArticle)
+
+app.delete('/api/comments/:comment_id' , deleteComment)
 
 app.all('*' , endpointNotFound)
 
