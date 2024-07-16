@@ -1,4 +1,4 @@
-const { fetchArticleById, fetchArticles } = require("../models/articles-models")
+const { fetchArticleById, fetchArticles, updateArticle } = require("../models/articles-models")
 
 exports.getArticleById = (request , response , next) => {
     const {article_id} = request.params
@@ -19,6 +19,21 @@ exports.getArticles = (request , response , next) => {
     fetchArticles()
     .then(({rows}) => {
         response.status(200).send({articles: rows})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+exports.patchArticle = (request , response , next) => {
+    const {article_id} = request.params
+    const {inc_votes} = request.body
+    updateArticle(article_id , inc_votes)
+    .then(({rows}) => {
+        if (Object.keys(request.body).length !== 1) {
+            return Promise.reject({status: 400, msg: '400 - Bad Request Incorrect Format'})
+        }
+        response.status(200).send({article: rows[0]})
     })
     .catch((err) => {
         next(err)

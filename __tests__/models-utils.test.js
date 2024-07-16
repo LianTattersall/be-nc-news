@@ -1,4 +1,4 @@
-const { checkArticleExists } = require("../model-utils")
+const { checkArticleExists } = require("../model-utils.js")
 const db = require('../db/connection.js')
 
 afterAll(() => {

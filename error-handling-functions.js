@@ -12,7 +12,7 @@ exports.psqlError = ((err , request , response , next) => {
     } else if (err.code === '23502') {
         response.status(400).send({msg: '400 - Bad Request Incorrect Format'})
     } else if (err.code === '23503') {
-        response.status(400).send({msg: '400 - Bad Request'})
+        response.status(404).send({msg: '404 - Not Found'})
     }
     next(err)
 })
