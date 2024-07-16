@@ -25,7 +25,7 @@ exports.getArticles = (request , response , next) => {
     })
 }
 
-exports.patchArticles = (request , response , next) => {
+exports.patchArticle = (request , response , next) => {
     const {article_id} = request.params
     const {inc_votes} = request.body
     updateArticle(article_id , inc_votes)
