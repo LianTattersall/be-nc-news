@@ -6,3 +6,10 @@ exports.checkArticleExists = (artilce_id) => {
         return rows.length !== 0
     })
 }
+
+exports.checkTopicExists = (topic) => {
+    return db.query(`SELECT * FROM topics WHERE topics.slug = $1` , [topic])
+    .then(({rows}) => {
+        return rows.length !== 0
+    })
+}
