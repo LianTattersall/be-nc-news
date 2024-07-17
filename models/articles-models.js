@@ -2,7 +2,12 @@ const db = require('../db/connection.js')
 const { checkTopicExists } = require('../model-utils.js')
 
 exports.fetchArticleById = (article_id) => {
-    return db.query(`SELECT * FROM articles WHERE article_id = $1` , [article_id])
+    return db.query(`
+    SELECT articles.article_id ,article_img_url, articles.author, articles.body, articles.created_at, articles.title, articles.topic, articles.votes, CAST(COUNT(comment_id) AS INT) AS comment_count
+    FROM articles LEFT JOIN comments 
+    ON comments.article_id = articles.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id , article_img_url , articles.author, articles.body , articles.created_at, articles.title, articles.topic, articles.votes` , [article_id])
 }
 
 exports.fetchArticles = (sort_by = 'created_at' , order = 'desc' , topic) => {
