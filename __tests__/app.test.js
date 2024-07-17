@@ -271,27 +271,27 @@ describe('/api/articles' , () => {
                 expect(msg).toBe('400 - Bad Request Invalid Column Name')
             })
         })
-        test('?order_by=asc - responds with the articles sorted by ascending created_at' , () => {
+        test('?order=asc - responds with the articles sorted by ascending created_at' , () => {
             return request(app)
-            .get('/api/articles?order_by=asc')
+            .get('/api/articles?order=asc')
             .expect(200)
             .then(({body: {articles}}) => {
                 expect(articles.length).toBe(13)
                 expect(articles).toBeSortedBy('created_at' , {descending: false})
             })
         })
-        test('?order_by=asc&sort_by=votes - the queries can be added together' , () => {
+        test('?order=asc&sort_by=votes - the queries can be added together' , () => {
             return request(app)
-            .get('/api/articles?sort_by=comments_count&order_by=asc')
+            .get('/api/articles?sort_by=comments_count&order=asc')
             .expect(200)
             .then(({body: {articles}}) => {
                 expect(articles.length).toBe(13)
                 expect(articles).toBeSortedBy('comments_count' , {descending: false})
             })
         })
-        test('?order_by=invalid_input - responds with an error if the order is not either asc or desc' , () => {
+        test('?order=invalid_input - responds with an error if the order is not either asc or desc' , () => {
             return request(app)
-            .get('/api/articles?order_by=wavy')
+            .get('/api/articles?order=wavy')
             .expect(400)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('400 - Bad Request Invalid order_by Query')
