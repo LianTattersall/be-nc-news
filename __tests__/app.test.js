@@ -230,7 +230,7 @@ describe('/api/articles' , () => {
                         created_at: expect.any(String),
                         votes: expect.any(Number),
                         article_img_url: expect.any(String),
-                        comments_count: expect.any(Number)
+                        comment_count: expect.any(Number)
                     })
                 })
             })
@@ -280,13 +280,13 @@ describe('/api/articles' , () => {
                 expect(articles).toBeSortedBy('created_at' , {descending: false})
             })
         })
-        test('?order=asc&sort_by=votes - the queries can be added together' , () => {
+        test('?order=asc&sort_by=comment_count - the queries can be added together' , () => {
             return request(app)
-            .get('/api/articles?sort_by=comments_count&order=asc')
+            .get('/api/articles?sort_by=comment_count&order=asc')
             .expect(200)
             .then(({body: {articles}}) => {
                 expect(articles.length).toBe(13)
-                expect(articles).toBeSortedBy('comments_count' , {descending: false})
+                expect(articles).toBeSortedBy('comment_count' , {descending: false})
             })
         })
         test('?order=invalid_input - responds with an error if the order is not either asc or desc' , () => {
@@ -295,6 +295,55 @@ describe('/api/articles' , () => {
             .expect(400)
             .then(({body: {msg}}) => {
                 expect(msg).toBe('400 - Bad Request Invalid order_by Query')
+            })
+        })
+        test('?topic=mitch - can add a query to filter by topic' , () => {
+            return request(app)
+            .get('/api/articles?topic=mitch')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(12)
+                articles.forEach((article) => {
+                    expect(article).toEqual({
+                        title: expect.any(String),
+                        topic: 'mitch',
+                        author: expect.any(String),
+                        created_at: expect.any(String),
+                        article_img_url: expect.any(String),
+                        article_id: expect.any(Number),
+                        votes: expect.any(Number),
+                        comment_count: expect.any(Number)
+                    })
+                })
+            })
+        })
+        test('?topics=paper - returns an empty array for topics that exist but do not have any articles' , () => {
+            return request(app)
+            .get('/api/articles?topic=paper')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles).toEqual([])
+            })
+        })
+        test('?topic=invalid-topic - responds with a 404 error when the topic does not exist' , () => {
+            return request(app)
+            .get('/api/articles?topic=not-a-topic')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('404 - Topic not found')
+            })
+        })
+        test('?topic=mitch&sort_by=title&order=asc - can combine all three queries' , () => {
+            return request(app)
+            .get('/api/articles?topic=mitch&sort_by=title&order=asc')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(12)
+                expect(articles).toBeSortedBy('title' , {descending: false})
+                articles.forEach((article) => {
+                    expect(article.topic).toBe('mitch')
+                })
+
             })
         })
     })
