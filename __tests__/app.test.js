@@ -538,6 +538,72 @@ describe('/api/comments/:comment_id' , () => {
             })
         })
     })
+    describe('PATCH' , () => {
+        test('PATCH: 200 - responds with the updated comment when the votes have been successfully modified' , () => {
+            const patchInfo = {inc_votes: 5}
+            const expected = {
+                body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+                votes: 21,
+                author: "butter_bridge",
+                article_id: 9,
+                created_at: '2020-04-06T12:17:00.000Z',
+              }
+            return request(app)
+            .patch('/api/comments/1')
+            .send(patchInfo)
+            .expect(200)
+            .then(({body: {comment}}) => {
+                expect(comment).toMatchObject(expected)
+            })
+        })
+        test('PATCH: 400 - Bad Request responds with an error when the inc_votes is not a number' , () => {
+            const patchInfo = {inc_votes: 'hi'}
+            return request(app)
+            .patch('/api/comments/1')
+            .send(patchInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Invalid Data Type')
+            })
+        })
+        test('PATCH: 400 - Bad Request responds with an error when the request body does not have a key of inc_votes' , () => {
+            const patchInfo = {key: 3}
+            return request(app)
+            .patch('/api/comments/2')
+            .send(patchInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Incorrect Format')
+            })
+        })
+        test('PATCH: 404 - Not Found responds with an error when the comment id does not exist' , () => {
+            const patchInfo = {inc_votes: 34}
+            return request(app)
+            .patch('/api/comments/2000')
+            .send(patchInfo)
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('404 - Comment not found')
+            })
+        })
+        test('PATCH: 200 - responds with the updated comment when there are additional properties to the request body' , () => {
+            const patchInfo = {inc_votes: -1 , key: 345}
+            const expected = {
+                body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+                votes: 15,
+                author: "butter_bridge",
+                article_id: 9,
+                created_at: '2020-04-06T12:17:00.000Z',
+              }
+            return request(app)
+            .patch('/api/comments/1')
+            .send(patchInfo)
+            .expect(200)
+            .then(({body: {comment}}) => {
+                expect(comment).toMatchObject(expected)
+            })
+        })
+    })
 })
 
 describe('/api/users' , () => {
