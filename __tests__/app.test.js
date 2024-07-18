@@ -560,3 +560,30 @@ describe('/api/users' , () => {
     })
 })
 
+describe('/api/users/:username' , () => {
+    describe('GET' , () => {
+        test('GET: 200 - responds with a user object of the specified username' , () => {
+            const expected = {
+                username: 'lurker',
+                name: 'do_nothing',
+                avatar_url:
+                  'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'
+              }
+            return request(app)
+            .get('/api/users/lurker')
+            .expect(200)
+            .then(({body: {user}}) => {
+                expect(user).toMatchObject(expected)
+            })
+        })
+        test('GET: 404 - responds with an error when the username does not exist' , () => {
+            return request(app)
+            .get('/api/users/22')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('404 - User not found')
+            })
+        })
+    })
+})
+
