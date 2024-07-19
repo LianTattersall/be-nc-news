@@ -43,6 +43,7 @@
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of comment objects for a given article_id",
+    "queries": ["limit" , "p"],
     "exampleResponse": [{
       "comment_id": 2,
       "body": " I carry a log — yes. Is it funny to you? It is not to me.",
