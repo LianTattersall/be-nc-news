@@ -552,6 +552,22 @@ describe('/api/articles' , () => {
                 expect(msg).toBe('400 - Page not a number')
             })
         })
+        test('GET: 200 - within response body there is a total count property with the total of any filters applied but disregards the limit' , () => {
+            return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body: {total_count}}) => {
+                expect(total_count).toBe(13)
+            })
+        })
+        test('GET: 200 - total_count is responsive to topic filters' , () => {
+            return request(app)
+            .get('/api/articles?topic=paper')
+            .expect(200)
+            .then(({body: {total_count}}) => {
+                expect(total_count).toBe(0)
+            })
+        })
     })
 })
 

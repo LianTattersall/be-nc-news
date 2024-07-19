@@ -17,11 +17,13 @@ exports.fetchArticles = (sort_by = 'created_at' , order = 'desc' , topic , limit
     LEFT JOIN comments 
     ON comments.article_id = articles.article_id
     `
+    let totalQueryStr = `SELECT CAST(COUNT(article_id) AS INT) FROM articles`
     const queryArr = []
 
     const queryValues = []
     if (topic) {
         queryStr += ` WHERE articles.topic = $1` 
+        totalQueryStr += ` WHERE articles.topic = $1` 
         queryValues.push(topic)
         queryArr.push(checkTopicExists(topic))
     }
@@ -49,14 +51,16 @@ exports.fetchArticles = (sort_by = 'created_at' , order = 'desc' , topic , limit
     queryStr += ` LIMIT ${limit} OFFSET ${(p - 1) * limit}`
 
     const articlesQuery = db.query(queryStr , queryValues)
-    queryArr.unshift(articlesQuery)
+    const totalCountQuery = db.query(totalQueryStr , queryValues)
+    queryArr.unshift(articlesQuery , totalCountQuery)
     
     return Promise.all(queryArr)
-    .then(([{rows} , topicExists]) => {
+    .then(([{rows} ,totalCountQuery, topicExists]) => {
+        const totalCount = totalCountQuery.rows[0].count
         if (rows.length === 0 && !topicExists && topic) {
             return Promise.reject({status: 404 , msg: '404 - Topic not found'})
         }
-        return {rows}
+        return [{rows} , totalCount]
     })
 }
 
