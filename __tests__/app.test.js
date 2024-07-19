@@ -281,6 +281,32 @@ describe('/api/articles/:article_id' , () => {
             })
         })
     })
+    describe('DELETE' , () => {
+        test('DELETE: 204 - responds with 204 status code and empty body upon successful deletion' , () => {
+            return request(app)
+            .delete('/api/articles/1')
+            .expect(204)
+            .then(({body}) => {
+                expect(body).toEqual({})
+            })
+        })
+        test('DELETE: 400 - Bad request when article_id not a number' , () => {
+            return request(app)
+            .delete('/api/articles/hello')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toEqual('400 - Bad Request Invalid Data Type')
+            })
+        })
+        test('DELETE: 404 - Article not found when article id does not exist' , () => {
+            return request(app)
+            .delete('/api/articles/468')
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('404 - Article not found')
+            })
+        })
+    })
 })
 
 describe('/api/articles' , () => {

@@ -1,4 +1,4 @@
-const { fetchArticleById, fetchArticles, updateArticle, addArticle } = require("../models/articles-models")
+const { fetchArticleById, fetchArticles, updateArticle, addArticle, removeArticleById } = require("../models/articles-models")
 
 exports.getArticleById = (request , response , next) => {
     const {article_id} = request.params
@@ -43,6 +43,17 @@ exports.postArticle = (request , response , next) => {
     addArticle(title , author , body , topic , article_img_url)
     .then(({rows}) => {
         response.status(201).send({article: rows[0]})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+exports.deleteArticleById = (request , response , next) => {
+    const {article_id} = request.params
+    removeArticleById(article_id)
+    .then(() => {
+        response.status(204).send({})
     })
     .catch((err) => {
         next(err)

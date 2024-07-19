@@ -129,5 +129,14 @@
       "created_at": "2020-04-06T12:17:00.000Z",
       "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
+  },
+  "POST /api/topics": {
+    "description": "post a new topic to the database (description is optional)",
+    "requestFormat": {"slug": "Tap Dancing" , "description": "A style of dance"},
+    "exampleResponse": {"slug": "Tap Dancing" , "description": "A style of dance"}
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the article and corresponding comments of the article specified by the article_id parameter",
+    "exampleResponse": "n/a"
   }
 }
