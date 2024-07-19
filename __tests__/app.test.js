@@ -369,6 +369,126 @@ describe('/api/articles' , () => {
             })
         })
     })
+    describe('POST' , () => {
+        test('POST: 201 - responds with the posted article when the article has been added successfully to the db. With no article_img_url it defaults to the one in seed' , () => {
+            const postInfo = {
+                author: 'butter_bridge', 
+                topic: 'cats',
+                title: 'Riemann Hypothesis is Proved!', 
+                body: 'Not really', 
+                }
+            return request(app)
+            .post('/api/articles')
+            .send(postInfo)
+            .expect(201)
+            .then(({body: {article}}) => {
+                expect(article).toMatchObject({
+                    article_id: 14,
+                    topic: 'cats',
+                    votes: 0,
+                    author: 'butter_bridge', 
+                    title: 'Riemann Hypothesis is Proved!', 
+                    body: 'Not really', 
+                    created_at: expect.any(String),
+                    article_img_url: "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"})
+            })
+        })
+        test('POST: 201 - responds with posted article when provided article_img_url with mathing urls' , () => {
+            const postInfo = {
+                author: 'butter_bridge', 
+                topic: 'cats',
+                title: 'Riemann Hypothesis is Proved!', 
+                body: 'Not really', 
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+                }
+            return request(app)
+            .post('/api/articles')
+            .send(postInfo)
+            .expect(201)
+            .then(({body: {article}}) => {
+                expect(article).toMatchObject({
+                    article_id: 14,
+                    author: 'butter_bridge', 
+                    topic: 'cats',
+                    title: 'Riemann Hypothesis is Proved!', 
+                    body: 'Not really', 
+                    created_at: expect.any(String),
+                    article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+                    })
+            })
+        })
+        test('POST: 404 - Not found responds with an error when the user does not exist' , () => {
+            const postInfo = {
+                author: 'Lian468', 
+                topic: 'cats',
+                title: 'Riemann Hypothesis is Proved!', 
+                body: 'Not really', 
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+                }
+            return request(app)
+            .post('/api/articles')
+            .send(postInfo)
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('404 - Not Found. Foreign Key Violation.')
+            })
+        })
+        test('POST: 404 - Not found responds with an error when the topic does not exist' , () => {
+            const postInfo = {
+                author: 'Lian468', 
+                topic: 'Maths',
+                title: 'Riemann Hypothesis is Proved!', 
+                body: 'Not really', 
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+                }
+            return request(app)
+            .post('/api/articles')
+            .send(postInfo)
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('404 - Not Found. Foreign Key Violation.')
+            })
+        })
+        test('POST: 400 - Bad request responds with an error when one of the fields is missing (apart from article_img_url' , () => {
+            const postInfo = {
+                author: 'butter_bridge', 
+                topic: 'cats',
+                body: 'Not really', 
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+                }
+            return request(app)
+            .post('/api/articles')
+            .send(postInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Incorrect Format')
+            })
+        })
+        test('POST: 201 - responds successfully when there are additional fields' , () => {
+            const postInfo = {
+                author: 'butter_bridge', 
+                topic: 'cats',
+                title: 'Riemann Hypothesis is Proved!', 
+                body: 'Not really',
+                extraInfo: 'hello' 
+                }
+                return request(app)
+                .post('/api/articles')
+                .send(postInfo)
+                .expect(201)
+                .then(({body: {article}}) => {
+                    expect(article).toMatchObject({
+                        article_id: 14,
+                        author: 'butter_bridge', 
+                        topic: 'cats',
+                        title: 'Riemann Hypothesis is Proved!', 
+                        body: 'Not really', 
+                        created_at: expect.any(String),
+                        article_img_url: "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
+                        })
+                })
+        })
+    })
 })
 
 describe('/api/articles/:article_id/comments' , () => {
@@ -457,7 +577,7 @@ describe('/api/articles/:article_id/comments' , () => {
             .send(postInfo)
             .expect(404)
             .then(({body: {msg}}) => {
-                expect(msg).toBe('404 - Not Found')
+                expect(msg).toBe('404 - Not Found. Foreign Key Violation.')
             })
         })
         test('POST: 404 - Not found returns an error when a user tries to comment on an article that does not exist' , () => {
@@ -467,7 +587,7 @@ describe('/api/articles/:article_id/comments' , () => {
             .send(postInfo)
             .expect(404)
             .then(({body: {msg}}) => {
-                expect(msg).toBe('404 - Not Found')
+                expect(msg).toBe('404 - Not Found. Foreign Key Violation.')
             })
         })
         test('POST: 400 - Bad request returns an error when the request body does not have the correct format' , () => {
