@@ -575,7 +575,7 @@ describe('/api/articles/:article_id/comments' , () => {
     describe('GET' , () => {
         test('GET: 200 - returns with an array of comment objects relating to the specified article_id' , () => {
             return request(app)
-            .get('/api/articles/1/comments')
+            .get('/api/articles/1/comments?limit=11')
             .expect(200)
             .then(({body: {comments}}) => {
                 expect(comments.length).toBe(11)
@@ -706,6 +706,56 @@ describe('/api/articles/:article_id/comments' , () => {
             .expect(201)
             .then(({body: {comment}}) => {
                 expect(comment).toEqual(expected)
+            })
+        })
+    })
+    describe('GET - pagination queries' , () => {
+        test('GET: 200 - the default limit is 10' , () => {
+            return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({body: {comments}}) => {
+                expect(comments.length).toBe(10)
+            })
+        })
+        test('GET: 200 - the can input a limit' , () => {
+            return request(app)
+            .get('/api/articles/1/comments?limit=2')
+            .expect(200)
+            .then(({body: {comments}}) => {
+                expect(comments.length).toBe(2)
+            })
+        })
+        test('GET: 400 - Bad request when the limit is not a number' , () => {
+            return request(app)
+            .get('/api/articles/1/comments?limit=hello')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Limit is not a number')
+            })
+        })
+        test('GET: 200 - default page is 1' , () => {
+            return request(app)
+            .get('/api/articles/1/comments')
+            .expect(200)
+            .then(({body: {comments}}) => {
+                expect(comments[0].comment_id).toBe(5)
+            })
+        })
+        test('GET: 200 - user can input page and server responds with the correct article offset by the page number' , () => {
+            return request(app)
+            .get('/api/articles/1/comments?p=2&limit=4')
+            .expect(200)
+            .then(({body: {comments}}) => {
+                expect(comments[0].comment_id).toBe(7)
+            })
+        })
+        test('GET: 400 - Bad request responds with an error when the page is not a number' , () => {
+            return request(app)
+            .get('/api/articles/1/comments?p=hell0')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Page is not a number')
             })
         })
     })

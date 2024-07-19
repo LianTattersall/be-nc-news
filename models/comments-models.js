@@ -1,8 +1,18 @@
 const { checkArticleExists } = require('../model-utils.js')
 const db = require('../db/connection.js')
 
-exports.fetchCommentsByArticleId = (article_id) => {
-    const commentsQuery = db.query(`SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC` , [article_id])
+exports.fetchCommentsByArticleId = (article_id , limit = 10 , p = 1) => {
+    let queryStr = `SELECT * FROM comments WHERE article_id = $1 ORDER BY created_at DESC`
+
+    if (!Number(limit)) {
+        return Promise.reject({status: 400 , msg: '400 - Limit is not a number'})
+    }
+    if(!Number(p)) {
+        return Promise.reject({status: 400 , msg: '400 - Page is not a number'})
+    }
+    queryStr += ` LIMIT ${limit} OFFSET ${(p - 1) * limit}`
+
+    const commentsQuery = db.query(queryStr , [article_id])
     const articleExistsQuery = checkArticleExists(article_id)
     return Promise.all([commentsQuery , articleExistsQuery])
     .then(([commentsQuery , articleExists]) => {
