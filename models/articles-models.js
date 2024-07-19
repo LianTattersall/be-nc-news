@@ -63,3 +63,10 @@ exports.updateArticle = (article_id , inc_votes) => {
         }
     })
 }
+
+exports.addArticle = (title , author , body , topic , article_img_url) => {
+    article_img_url = article_img_url || 'https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700'
+    return db.query(`
+    INSERT INTO articles (title , author , body , topic , article_img_url) 
+    VALUES ($1, $2 , $3 , $4 , $5) RETURNING *` , [title , author , body , topic , article_img_url])
+}
