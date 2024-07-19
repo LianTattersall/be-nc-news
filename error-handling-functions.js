@@ -13,6 +13,8 @@ exports.psqlError = ((err , request , response , next) => {
         response.status(400).send({msg: '400 - Bad Request Incorrect Format'})
     } else if (err.code === '23503') {
         response.status(404).send({msg: '404 - Not Found. Foreign Key Violation.'})
+    } else if (err.code === '23505') {
+        response.status(403).send({msg: '403 - Resource Already Exists'})
     }
     next(err)
 })
