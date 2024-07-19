@@ -2,7 +2,8 @@ const { fetchCommentsByArticleId, addComment, removeComment, updateComment } = r
 
 exports.getCommentsByArticleId = (request , response , next) => {
     const {article_id} = request.params
-    fetchCommentsByArticleId(article_id)
+    const {limit , p} = request.query
+    fetchCommentsByArticleId(article_id , limit , p)
     .then(({rows}) => {
         response.status(200).send({comments: rows})
     })
