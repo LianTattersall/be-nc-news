@@ -242,7 +242,7 @@ describe('/api/articles' , () => {
             .get('/api/articles')
             .expect(200)
             .then(({body: {articles}}) => {
-                expect(articles.length).toBe(13)
+                expect(articles.length).toBe(10)
                 articles.forEach((article) => {
                     expect(article).toEqual({
                         author: expect.any(String),
@@ -272,7 +272,7 @@ describe('/api/articles' , () => {
             .get('/api/articles?sort_by=article_id')
             .expect(200)
             .then(({body: {articles}}) => {
-                expect(articles.length).toBe(13)
+                expect(articles.length).toBe(10)
                 expect(articles).toBeSortedBy('article_id' , {descending: true})
             })
         })
@@ -281,7 +281,7 @@ describe('/api/articles' , () => {
             .get('/api/articles?sort_by=title')
             .expect(200)
             .then(({body: {articles}}) => {
-                expect(articles.length).toBe(13)
+                expect(articles.length).toBe(10)
                 expect(articles).toBeSortedBy('title' , {descending: true})
             })
         })
@@ -298,7 +298,7 @@ describe('/api/articles' , () => {
             .get('/api/articles?order=asc')
             .expect(200)
             .then(({body: {articles}}) => {
-                expect(articles.length).toBe(13)
+                expect(articles.length).toBe(10)
                 expect(articles).toBeSortedBy('created_at' , {descending: false})
             })
         })
@@ -307,7 +307,7 @@ describe('/api/articles' , () => {
             .get('/api/articles?sort_by=comment_count&order=asc')
             .expect(200)
             .then(({body: {articles}}) => {
-                expect(articles.length).toBe(13)
+                expect(articles.length).toBe(10)
                 expect(articles).toBeSortedBy('comment_count' , {descending: false})
             })
         })
@@ -324,7 +324,7 @@ describe('/api/articles' , () => {
             .get('/api/articles?topic=mitch')
             .expect(200)
             .then(({body: {articles}}) => {
-                expect(articles.length).toBe(12)
+                expect(articles.length).toBe(10)
                 articles.forEach((article) => {
                     expect(article).toEqual({
                         title: expect.any(String),
@@ -360,7 +360,7 @@ describe('/api/articles' , () => {
             .get('/api/articles?topic=mitch&sort_by=title&order=asc')
             .expect(200)
             .then(({body: {articles}}) => {
-                expect(articles.length).toBe(12)
+                expect(articles.length).toBe(10)
                 expect(articles).toBeSortedBy('title' , {descending: false})
                 articles.forEach((article) => {
                     expect(article.topic).toBe('mitch')
@@ -487,6 +487,70 @@ describe('/api/articles' , () => {
                         article_img_url: "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700"
                         })
                 })
+        })
+    })
+    describe('GET - pagination queries' , () => {
+        test('GET: 200 - default limit is 10' , () => {
+            return request(app)
+            .get('/api/articles')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(10)
+            })
+        })
+        test('GET: 200 - user can input limit and responds with specified number of articles' , () => {
+            return request(app)
+            .get('/api/articles?limit=5')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(5)
+            })
+        })
+        test('GET: 400 - Bad request responds with an error when the limit is not a number' , () => {
+            return request(app)
+            .get('/api/articles?limit=hello')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Limit not a number')
+            })
+        })
+        test('GET: 200 - default page is one' , () => {
+            return request(app)
+            .get('/api/articles?sort_by=article_id&order=asc')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(10)
+                articles.forEach((article , index) => {
+                    expect(article.article_id).toBe(1 + index)
+                })
+            })
+        })
+        test('GET: 200 - responds with the correct page' , () => {
+            return request(app)
+            .get('/api/articles?sort_by=article_id&order=asc&p=2')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(3)
+                articles.forEach((article , index) => {
+                    expect(article.article_id).toBe(index + 11)
+                })
+            })
+        })
+        test('GET: 200 - responds empy array if page does not exist' , () => {
+            return request(app)
+            .get('/api/articles?sort_by=article_id&order=asc&p=3')
+            .expect(200)
+            .then(({body: {articles}}) => {
+                expect(articles.length).toBe(0)
+            })
+        })
+        test('GET: 400 - Bad request responds with an error when p is not a number' , () => {
+            return request(app)
+            .get('/api/articles?srto_by=article_id&order=asc&p=hello')
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Page not a number')
+            })
         })
     })
 })
