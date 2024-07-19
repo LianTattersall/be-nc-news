@@ -44,6 +44,54 @@ describe('/api/topics' , () => {
             })
         })
     })
+    describe('POST' , () => {
+        test('POST: 200 - responds with the new topic object that has just been posted' , () => {
+            const postInfo = {
+                slug: 'K-pop',
+                description: 'All the latest k-pop news'
+            }
+            return request(app)
+            .post('/api/topics')
+            .send(postInfo)
+            .expect(201)
+            .then(({body: {topic}}) => {
+                expect(topic).toEqual(postInfo)
+            })
+        })
+        test('POST: 403 - Topic already exists when user tries to post an existing topic' , () => {
+            const postInfo = {
+                slug: 'mitch',
+                description: 'mitch stuff'
+            }
+            return request(app)
+            .post('/api/topics')
+            .send(postInfo)
+            .expect(403)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('403 - Resource Already Exists')
+            })
+        })
+        test('POST: 400 - Bad request responds with an error when the slug is missing from the request body' , () => {
+            const postInfo = {description: 'J-pop'}
+            return request(app)
+            .post('/api/topics')
+            .send(postInfo)
+            .expect(400)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe('400 - Bad Request Incorrect Format')
+            })
+        })
+        test('POST: 201 - Successfully posts when missing the description and has additional keys' , () => {
+            const postInfo = {slug: 'J-pop' , favouriteSong: 'Bluebird'}
+            return request(app)
+            .post('/api/topics')
+            .send(postInfo)
+            .expect(201)
+            .then(({body: {topic}}) => {
+                expect(topic).toMatchObject({slug: 'J-pop' , description: null})
+            })
+        })
+    })
 })
 
 describe('/api' , () => {
