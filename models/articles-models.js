@@ -10,7 +10,7 @@ exports.fetchArticleById = (article_id) => {
     GROUP BY articles.article_id , article_img_url , articles.author, articles.body , articles.created_at, articles.title, articles.topic, articles.votes` , [article_id])
 }
 
-exports.fetchArticles = (sort_by = 'created_at' , order = 'desc' , topic) => {
+exports.fetchArticles = (sort_by = 'created_at' , order = 'desc' , topic , limit = 10 , p = 1) => {
     let queryStr = `
     SELECT articles.article_id , articles.title , articles.author , articles.topic , articles.votes , articles.article_img_url , articles.created_at , 
     CAST(COUNT(comment_id) AS INT) AS comment_count FROM articles 
@@ -38,12 +38,22 @@ exports.fetchArticles = (sort_by = 'created_at' , order = 'desc' , topic) => {
     }
     queryStr += ` ORDER BY ${sort_by} ${order}`
 
+    if (!Number(limit)) {
+        return Promise.reject({status: 400 , msg: '400 - Limit not a number'})
+    }
+    
+    if (!Number(p)) {
+        return Promise.reject({status: 400 , msg: '400 - Page not a number'})
+    }
+
+    queryStr += ` LIMIT ${limit} OFFSET ${(p - 1) * limit}`
+
     const articlesQuery = db.query(queryStr , queryValues)
     queryArr.unshift(articlesQuery)
     
     return Promise.all(queryArr)
     .then(([{rows} , topicExists]) => {
-        if (rows.length === 0 && !topicExists) {
+        if (rows.length === 0 && !topicExists && topic) {
             return Promise.reject({status: 404 , msg: '404 - Topic not found'})
         }
         return {rows}
