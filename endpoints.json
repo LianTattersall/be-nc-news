@@ -134,5 +134,9 @@
     "description": "post a new topic to the database (description is optional)",
     "requestFormat": {"slug": "Tap Dancing" , "description": "A style of dance"},
     "exampleResponse": {"slug": "Tap Dancing" , "description": "A style of dance"}
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes the article and corresponding comments of the article specified by the article_id parameter",
+    "exampleResponse": "n/a"
   }
 }
