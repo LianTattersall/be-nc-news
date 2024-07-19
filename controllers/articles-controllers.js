@@ -1,4 +1,4 @@
-const { fetchArticleById, fetchArticles, updateArticle } = require("../models/articles-models")
+const { fetchArticleById, fetchArticles, updateArticle, addArticle } = require("../models/articles-models")
 
 exports.getArticleById = (request , response , next) => {
     const {article_id} = request.params
@@ -32,6 +32,17 @@ exports.patchArticle = (request , response , next) => {
     updateArticle(article_id , inc_votes)
     .then(({rows}) => {
         response.status(200).send({article: rows[0]})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+exports.postArticle = (request , response , next) => {
+    const {title , author , body , topic , article_img_url} = request.body
+    addArticle(title , author , body , topic , article_img_url)
+    .then(({rows}) => {
+        response.status(201).send({article: rows[0]})
     })
     .catch((err) => {
         next(err)
