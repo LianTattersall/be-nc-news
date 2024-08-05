@@ -1,20 +1,28 @@
-const express = require('express')
-const { endpointNotFound, internalServerError, psqlError, customError } = require('./error-handling-functions')
+const express = require("express");
+const {
+  endpointNotFound,
+  internalServerError,
+  psqlError,
+  customError,
+} = require("./error-handling-functions");
+const cors = require("cors");
 
-const apiRouter = require('./routers/api-router')
+const apiRouter = require("./routers/api-router");
 
-const app = express()
+const app = express();
 
-app.use(express.json())
+app.use(cors());
 
-app.use('/api', apiRouter)
+app.use(express.json());
 
-app.all('*' , endpointNotFound)
+app.use("/api", apiRouter);
 
-app.use(psqlError)
+app.all("*", endpointNotFound);
 
-app.use(customError)
+app.use(psqlError);
 
-app.use(internalServerError)
+app.use(customError);
 
-module.exports = app
+app.use(internalServerError);
+
+module.exports = app;
