@@ -37,25 +37,27 @@
       "body": "I find this existence challenging",
       "created_at": "2018-05-30T15:59:13.341Z",
       "votes": 100,
-      "article_img_url":
-        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
     }
   },
   "GET /api/articles/:article_id/comments": {
     "description": "serves an array of comment objects for a given article_id",
-    "queries": ["limit" , "p"],
-    "exampleResponse": [{
-      "comment_id": 2,
-      "body": " I carry a log — yes. Is it funny to you? It is not to me.",
-      "votes": -100,
-      "author": "icellusedkars",
-      "article_id": 1,
-      "created_at": "2020-07-09T20:11:00.000Z"
-    }]
+    "queries": ["limit", "p", "offset"],
+    "notes": "if p and offset are provided the p gets ignored and offset is used",
+    "exampleResponse": [
+      {
+        "comment_id": 2,
+        "body": " I carry a log — yes. Is it funny to you? It is not to me.",
+        "votes": -100,
+        "author": "icellusedkars",
+        "article_id": 1,
+        "created_at": "2020-07-09T20:11:00.000Z"
+      }
+    ]
   },
   "POST /api/articles/:article_id/comments": {
     "description": "adds a comment to the comments table for the article specified by the article_id parameter",
-    "requestFormat": {"username": "butter_bridge" , "body": "So cool!"},
+    "requestFormat": { "username": "butter_bridge", "body": "So cool!" },
     "exampleResponse": {
       "comment_id": 19,
       "votes": 0,
@@ -63,11 +65,11 @@
       "author": "butter_bridge",
       "body": "So cool!",
       "article_id": 1
-  }
+    }
   },
   "PATCH /api/articles/:article_id": {
     "description": "updates the voting property of an article by adding specified amount of votes stored on inc_votes key on the request body",
-    "requestFormat": {"inc_votes": 5},
+    "requestFormat": { "inc_votes": 5 },
     "exampleResponse": {
       "article_id": 1,
       "title": "Living in the shadow of a great man",
@@ -76,25 +78,25 @@
       "body": "I find this existence challenging",
       "created_at": "2020-07-09T20:11:00.000Z",
       "votes": 95,
-      "article_img_url":
-        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
     }
   },
   "GET /api/users": {
     "description": "responds with an array of user objects each with a username, name, and avatar_url property",
-    "exampleResponse": [{
-      "username": "butter_bridge",
-      "name": "jonny",
-      "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
-    }]
+    "exampleResponse": [
+      {
+        "username": "butter_bridge",
+        "name": "jonny",
+        "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+      }
+    ]
   },
   "GET /api/users/:username": {
     "description": "responds with a user object with keys username name and avatar_url of the user sepcified by the username parameter",
     "exampleResponse": {
       "username": "lurker",
       "name": "do_nothing",
-      "avatar_url":
-        "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
+      "avatar_url": "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png"
     }
   },
   "DELETE /api/comments/:comment_id": {
@@ -114,26 +116,32 @@
   "POST /api/articles": {
     "description": "posts a new article and responds with the article object that would be in the database (article_img_url is potional and has a default)",
     "requestFormat": {
-      "author": "butter_bridge", 
+      "author": "butter_bridge",
       "topic": "cats",
-      "title": "Riemann Hypothesis is Proved!", 
-      "body": "Not really", 
+      "title": "Riemann Hypothesis is Proved!",
+      "body": "Not really",
       "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-      },
+    },
     "exampleResponse": {
       "article_id": 14,
-      "author": "butter_bridge", 
+      "author": "butter_bridge",
       "topic": "cats",
-      "title": "Riemann Hypothesis is Proved!", 
-      "body": "Not really", 
+      "title": "Riemann Hypothesis is Proved!",
+      "body": "Not really",
       "created_at": "2020-04-06T12:17:00.000Z",
       "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
-      }
+    }
   },
   "POST /api/topics": {
     "description": "post a new topic to the database (description is optional)",
-    "requestFormat": {"slug": "Tap Dancing" , "description": "A style of dance"},
-    "exampleResponse": {"slug": "Tap Dancing" , "description": "A style of dance"}
+    "requestFormat": {
+      "slug": "Tap Dancing",
+      "description": "A style of dance"
+    },
+    "exampleResponse": {
+      "slug": "Tap Dancing",
+      "description": "A style of dance"
+    }
   },
   "DELETE /api/articles/:article_id": {
     "description": "deletes the article and corresponding comments of the article specified by the article_id parameter",
